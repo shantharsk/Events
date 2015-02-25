@@ -1,23 +1,20 @@
 //
-//  ViewController.m
+//  Gridview.m
 //  Event
 //
 //  Created by admin on 23/02/15.
 //
 //
 
-#import "ViewController.h"
-#import "listview.h"
-#import "tackviewcell.h"
+#import "Gridview.h"
+#import "gridviewcell.h"
 #import "detailviewlist.h"
-@interface ViewController ()
-
-@end
-
-@implementation ViewController
+#import "tackviewcell.h"
+#import "listview.h"
+@interface Gridview ()
 {
-    NSUserDefaults *userName;
-    NSString *name;
+    NSArray *eventna,*evtplace,*evtentry,*evtimg;
+     NSString *viewmode;
     NSMutableArray *evenameb;
     NSMutableArray *eveplaceb;
     NSMutableArray *eveimgb;
@@ -27,11 +24,15 @@
     NSUserDefaults *getname;
     NSString *title;
 }
-@synthesize username,mytableview,titname,slidebtn,tacktit;
+@end
+
+@implementation Gridview
+@synthesize mycollectionview,slidebtn,mytableview,titname,tacktit;
 @synthesize slideview = _slideview;
 @synthesize layerPosition = _layerPosition;
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     getname=[NSUserDefaults standardUserDefaults];
     title=[getname valueForKey:@"name"];
     NSLog(@"st%@",title);
@@ -43,29 +44,71 @@
     self.mytableview.tableFooterView = [[UIView alloc] init] ;
     self.mytableview.dataSource = self;
     self.mytableview.delegate = self;
-    //viewmode=@"grid";
-    [mytableview setEditing:YES animated:YES];
+    viewmode=@"grid";
+     [mytableview setEditing:YES animated:YES];
+    eventna = [[NSArray alloc]initWithObjects:@"Metallica Concert",@"Saree Exhibition",@"Wine tasting event",@"Startups Meet",@"Summer Noon Party",@"Rock and Roll",@"Barbecue Fridays",@"Summer workshop",@"Impressions & Expressions",@"Italian carnival",nil];
+    
+    
+    evtplace = [[NSArray alloc]initWithObjects:@"Palace Grounds",@"Malleswaram Grounds",@"Links Brewery",@"Kanteerava Indoor Stadium",@"Kumara Park",@"Sarjapur Road",@"Whitefield",@"Indiranagar",@"MG Road",@"Electronic City",nil];
+    
+    evtentry = [[NSArray alloc]initWithObjects:@"paid entry",@"free entry",@"paid entry",@"paid entry",@"paid entry",@"paid entry",@"paid entry",@"free entry",@"free entry",@"free entry",nil];
+    
+    evtimg = [[NSArray alloc]initWithObjects:@"image1.jpg",@"image2.jpg",@"image3.jpg",@"image4.jpg",@"image5.jpg",@"image6.jpg",@"image7.jpg",@"image8.jpg",@"image9.jpg",@"image10.jpg",nil];
 
-    // Do any additional setup after loading the view, typically from a nib.
+    // Do any additional setup after loading the view.
+}
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    return [eventna count];
+    
+}
+- (NSInteger)numberOfSectionsInCollectionView: (UICollectionView *)collectionView
+{
+    return 1;
+}
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    
+    //static NSString *cellidentifier=@"Cell";
+    
+    
+    static NSString *cellIdentifier =@"Cell";
+    
+    
+    gridviewcell  *cell=(gridviewcell *) [collectionView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath: indexPath];
+    
+    // cell.tit.text = [photoSetNames objectAtIndex:indexPath.row];
+    // int imageNumber = indexPath.row % 7;
+    //cell.imageview.image=[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@",[photoids objectAtIndex:indexPath.row]]]]];
+       
+    cell.evtname.text = [eventna objectAtIndex:indexPath.row];
+   // cell.evt.text =[evtplace objectAtIndex:indexPath.row];
+   // cell.entry.text =[evtentry objectAtIndex:indexPath.row];
+    
+    
+    
+    cell.img.image = [UIImage imageNamed:[evtimg objectAtIndex:indexPath.row]];
+    return cell;
+}
+
+-(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+    if([segue.identifier isEqualToString:@"gridview"]){
+        detailviewlist *controller = (detailviewlist *)segue.destinationViewController;
+        // HERE I retrieve index path from parameter
+        
+       //  self.selectedItemIndex = indexPath.row;
+        // NSIndexPath *indexPath = [self.mycollectionview indexPathForCell:cell];
+        NSIndexPath *indexPath = [[self.mycollectionview indexPathsForSelectedItems] lastObject];
+        controller.evename = [eventna objectAtIndex:indexPath.item];
+        controller.eveimg = [evtimg objectAtIndex:indexPath.item];
+        controller.eveplace = [evtplace objectAtIndex:indexPath.item];
+        controller.evtentry = [evtentry objectAtIndex:indexPath.item];
+         controller.viewtype=viewmode;// NSLog(@"photoid = %@", controller.flickerID);
+    }
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
-}
-
-- (IBAction)submit:(id)sender {
-    
-    name=username.text;
-    
-    userName=[NSUserDefaults standardUserDefaults];
-    [userName setObject:name forKey:@"name"];
-    
-    listview *pollVC = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"listview"];
-    
-    
-    [self presentViewController:pollVC animated:NO completion:nil];
-    NSLog(@"Name%@",userName);
 }
 -(NSString *) filePath1{
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -138,47 +181,47 @@
     return 1;
 }
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return evenameb.count;
+     return evenameb.count;
     
     
 }
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     
     
-    static NSString *cellIdentifier =@"Cell";
-    
-    
-    tackviewcell *cell =(tackviewcell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
-    if (cell == nil) {
+        static NSString *cellIdentifier =@"Cell";
         
-        cell = [[tackviewcell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
-    }
-    
-    cell.evena.text = [evenameb objectAtIndex:indexPath.row];
-    cell.evepl.text =[eveplaceb objectAtIndex:indexPath.row];
-    cell.eveten.text =[evetentyb objectAtIndex:indexPath.row];
-    
-    
-    
-    cell.img.image = [UIImage imageNamed:[eveimgb objectAtIndex:indexPath.row]];
-    
-    delt = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    delt.frame =CGRectMake(550, 30, 60, 50);
+        
+        tackviewcell *cell =(tackviewcell *)[tableView dequeueReusableCellWithIdentifier:cellIdentifier];
+        if (cell == nil) {
+            
+            cell = [[tackviewcell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellIdentifier];
+        }
+        
+        cell.evena.text = [evenameb objectAtIndex:indexPath.row];
+        cell.evepl.text =[eveplaceb objectAtIndex:indexPath.row];
+        cell.eveten.text =[evetentyb objectAtIndex:indexPath.row];
+        
+        
+        
+        cell.img.image = [UIImage imageNamed:[eveimgb objectAtIndex:indexPath.row]];
+        
+        delt = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        delt.frame =CGRectMake(550, 30, 60, 50);
     UIImage *btnImage = [UIImage imageNamed:@"cancel.png"];
-    [delt setBackgroundImage:btnImage forState:UIControlStateNormal];
-    [delt addTarget:self action:@selector(Acceptrequest:) forControlEvents:UIControlEventTouchUpInside];
-    [cell addSubview:delt];
-    [delt setTag:indexPath.row];
-    
-    
-    displaybtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
-    displaybtn.frame =CGRectMake(650, 40, 60, 30);
-    [displaybtn setTitle:@"View" forState:UIControlStateNormal];
-    [displaybtn addTarget:self action:@selector(DEl:) forControlEvents:UIControlEventTouchUpInside];
-    [cell addSubview:displaybtn];
-    [displaybtn setTag:indexPath.row];
-    return cell;
-    
+        [delt setBackgroundImage:btnImage forState:UIControlStateNormal];
+        [delt addTarget:self action:@selector(Acceptrequest:) forControlEvents:UIControlEventTouchUpInside];
+        [cell addSubview:delt];
+        [delt setTag:indexPath.row];
+        
+        
+        displaybtn = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+        displaybtn.frame =CGRectMake(650, 40, 60, 30);
+        [displaybtn setTitle:@"View" forState:UIControlStateNormal];
+        [displaybtn addTarget:self action:@selector(DEl:) forControlEvents:UIControlEventTouchUpInside];
+        [cell addSubview:displaybtn];
+        [displaybtn setTag:indexPath.row];
+        return cell;
+   
     
 }
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
@@ -215,7 +258,7 @@
     pollVC.eveplace=ss;
     pollVC.eveimg=kk;
     pollVC.evtentry=mm;
-    pollVC.viewtype=@"home";
+    pollVC.viewtype=@"grid";
     pollVC.tack=@"tk";
     [self presentViewController:pollVC animated:NO completion:nil];
     
@@ -224,19 +267,18 @@
     [mytableview reloadData];
 }
 - (IBAction)swipeges:(UISwipeGestureRecognizer *)sender {
-    titname.hidden=NO;
     tacktit.hidden=NO;
-
+    titname.hidden=NO;
     if (sender.direction == UISwipeGestureRecognizerDirectionLeft) {
-        _slideview.frame =  CGRectMake(0, 0, 750, 1024);
+        _slideview.frame =  CGRectMake(0, 52, 750, 972);
         [UIView animateWithDuration:0.10 animations:^{
-            _slideview.frame =  CGRectMake(0, 0, 20, 1024);
+            _slideview.frame =  CGRectMake(0, 52, 20, 972);
             
         }];
         
-        mytableview.frame =  CGRectMake(0,  60, 750, 887);
+        mytableview.frame =  CGRectMake(0,  62, 750, 887);
         [UIView animateWithDuration:1.25 animations:^{
-            mytableview.frame =  CGRectMake(0, 60, 20, 972);
+            mytableview.frame =  CGRectMake(0, 62, 20, 972);
         }];
         //[NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(btnshow) userInfo:nil repeats:YES];
         
@@ -245,17 +287,17 @@
             slidebtn.frame =  CGRectMake(20, 500, 40, 120);
             
         }];
-        
+
     }
     if (sender.direction == UISwipeGestureRecognizerDirectionRight) {
-        _slideview.frame =  CGRectMake(0, 0, 750, 1024);
+        _slideview.frame =  CGRectMake(0, 52, 750, 972);
         [UIView animateWithDuration:0.25 animations:^{
-            _slideview.frame =  CGRectMake(0, 0, 750, 1024);
+            _slideview.frame =  CGRectMake(0, 52, 750, 972);
         }];
         
-        mytableview.frame =  CGRectMake(0,  60, 750, 887);
+        mytableview.frame =  CGRectMake(0,  62, 750, 887);
         [UIView animateWithDuration:1.25 animations:^{
-            mytableview.frame =  CGRectMake(0, 60, 750, 972);
+            mytableview.frame =  CGRectMake(0, 62, 750, 972);
         }];
         
         slidebtn.frame =  CGRectMake(750, 500, 40, 120);
@@ -271,12 +313,12 @@
 - (IBAction)viewswipegest:(UISwipeGestureRecognizer *)sender {
     if (sender.direction == UISwipeGestureRecognizerDirectionLeft) {
         
-        titname.hidden=YES;
         tacktit.hidden=YES;
-
-        _slideview.frame =  CGRectMake(0, 0, 750, 1024);
+        titname.hidden=YES;
+        
+        _slideview.frame =  CGRectMake(0, 52, 750, 972);
         [UIView animateWithDuration:0.10 animations:^{
-            _slideview.frame =  CGRectMake(0, 0, 20, 1024);
+            _slideview.frame =  CGRectMake(0, 52, 20, 972);
             
         }];
         
@@ -291,10 +333,10 @@
     }
     if (sender.direction == UISwipeGestureRecognizerDirectionRight) {
         
-        //titname.hidden=NO;
-        _slideview.frame =  CGRectMake(0, 0, 750, 1024);
+         //titname.hidden=NO;
+        _slideview.frame =  CGRectMake(0, 52, 750, 972);
         [UIView animateWithDuration:0.25 animations:^{
-            _slideview.frame =  CGRectMake(0, 52, 750, 1024);
+            _slideview.frame =  CGRectMake(0, 52, 750, 972);
         }];
         
         slidebtn.frame =  CGRectMake(750, 500, 40, 120);
@@ -304,8 +346,9 @@
         
         // [self animatedLayerToPoint: VIEW_HIDDENrt];
     }
-    
+
 }
+
 -(void)Deletedata:(NSString*)query{
     
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -344,6 +387,20 @@
     
     [mytableview reloadData];
 }
+/*
+#pragma mark - Navigation
 
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
 
+- (IBAction)listview:(id)sender {
+    listview *pollVC = [[UIStoryboard storyboardWithName:@"Main" bundle:nil] instantiateViewControllerWithIdentifier:@"listview"];
+    
+    
+    [self presentViewController:pollVC animated:NO completion:nil];
+}
 @end
